@@ -14,7 +14,7 @@ set nocompatible
 
 " }}}
 " Basic options ----------------------------------------------------------- {{{
-set gfn=PragmataPro\ 10
+set gfn=PragmataPro\ 9
 set encoding=utf-8
 set modelines=0
 set autoindent
