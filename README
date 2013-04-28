@@ -1,0 +1,7 @@
+This is the vim configuration repo
+
+Installation:
+	git clone git://github.com/omarmy/dotvim.git ~/.vim
+
+Create symlinks:
+	ln -s ~/.vim/vimrc ~/.vimrc
