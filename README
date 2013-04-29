@@ -5,3 +5,7 @@ Installation:
 
 Create symlinks:
 	ln -s ~/.vim/vimrc ~/.vimrc
+
+Install Powerline fonts:
+        ln -s ~/.vim/powerline-fonts/ ~/.fonts/powerline-fonts
+        fc-cache -vf
