@@ -48,6 +48,7 @@ set linebreak
 set dictionary=/usr/share/dict/words
 set spellfile=~/.vim/custom-dictionary.utf-8.add
 set colorcolumn=+1
+set t_Co=256
 
 " Don't try to highlight lines longer than 800 characters.
 set synmaxcol=800
