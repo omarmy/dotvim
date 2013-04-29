@@ -14,7 +14,7 @@ set nocompatible
 
 " }}}
 " Basic options ----------------------------------------------------------- {{{
-set gfn=PragmataPro\ 10
+set gfn=Liberation\ Mono\ for\ Powerline\ 9
 set encoding=utf-8
 set modelines=0
 set autoindent
@@ -1042,7 +1042,7 @@ augroup END
 
 let g:Powerline_symbols = 'fancy'
 let g:Powerline_cache_enabled = 1
-let g:Powerline_colorscheme = 'solarized256'
+let g:Powerline_colorscheme = 'badwolf'
 
 " }}}
 
