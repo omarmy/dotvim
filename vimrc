@@ -15,6 +15,12 @@ set nocompatible
 " }}}
 " Basic options ----------------------------------------------------------- {{{
 set gfn=Liberation\ Mono\ for\ Powerline\ 9
+set go-=m       "hide menubar
+set go-=T       "hide toolbar
+set go-=l       "hide left-hand scrollbar
+set go-=L       "hide left-hand scrollbar when veritcal splitr
+set go-=r       "hide right-hand scrollbar
+set go-=R       "hide right-hand scrollbar when veritcal split
 set encoding=utf-8
 set modelines=0
 set autoindent
@@ -49,6 +55,16 @@ set dictionary=/usr/share/dict/words
 set spellfile=~/.vim/custom-dictionary.utf-8.add
 set colorcolumn=+1
 set t_Co=256
+if &term =~ "xterm"
+ set t_Co=256
+ if has("terminfo")
+   let &t_Sf=nr2char(27).'[3%p1%dm'
+   let &t_Sb=nr2char(27).'[4%p1%dm'
+ else
+   let &t_Sf=nr2char(27).'[3%dm'
+   let &t_Sb=nr2char(27).'[4%dm'
+ endif
+endif
 
 " Don't try to highlight lines longer than 800 characters.
 set synmaxcol=800
@@ -194,38 +210,6 @@ augroup END
 match ErrorMsg '^\(<\|=\|>\)\{7\}\([^=].\+\)\?$'
 
 " }}}
-
-" }}}
-" Abbreviations ----------------------------------------------------------- {{{
-
-function! EatChar(pat)
-    let c = nr2char(getchar(0))
-    return (c =~ a:pat) ? '' : c
-endfunction
-
-function! MakeSpacelessIabbrev(from, to)
-    execute "iabbrev <silent> ".a:from." ".a:to."<C-R>=EatChar('\\s')<CR>"
-endfunction
-function! MakeSpacelessBufferIabbrev(from, to)
-    execute "iabbrev <silent> <buffer> ".a:from." ".a:to."<C-R>=EatChar('\\s')<CR>"
-endfunction
-
-call MakeSpacelessIabbrev('sl/',  'http://stevelosh.com/')
-call MakeSpacelessIabbrev('bb/',  'http://bitbucket.org/')
-call MakeSpacelessIabbrev('bbs/', 'http://bitbucket.org/sjl/')
-call MakeSpacelessIabbrev('gh/',  'http://github.com/')
-call MakeSpacelessIabbrev('ghs/', 'http://github.com/sjl/')
-
-iabbrev ldis ಠ_ಠ
-iabbrev lsad ಥ_ಥ
-iabbrev lhap ಥ‿ಥ
-iabbrev lmis ಠ‿ಠ
-
-iabbrev sl@ steve@stevelosh.com
-iabbrev vrcf `~/.vimrc` file
-
-iabbrev pcf Participatory Culture Foundation
-inoremap <c-l> <c-k>l*
 
 " }}}
 " Convenience mappings ---------------------------------------------------- {{{
@@ -408,22 +392,12 @@ inoremap <c-]> <c-x><c-]>
 " Quick editing ----------------------------------------------------------- {{{
 
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
-nnoremap <leader>eV :vsplit scp://vagrant//<cr>
-nnoremap <leader>ef :vsplit ~/.config/fish/config.fish<cr>
-nnoremap <leader>ed :vsplit ~/.vim/custom-dictionary.utf-8.add<cr>
-nnoremap <leader>eo :vsplit ~/Dropbox/Org<cr>4j
-nnoremap <leader>eh :vsplit ~/.hgrc<cr>
-nnoremap <leader>ep :vsplit ~/.pentadactylrc<cr>
-nnoremap <leader>em :vsplit ~/.mutt/muttrc<cr>
-nnoremap <leader>ez :vsplit ~/lib/dotfiles/zsh<cr>4j
-nnoremap <leader>ek :vsplit ~/lib/dotfiles/keymando/keymandorc.rb<cr>
 nnoremap <leader>et :vsplit ~/.tmux.conf<cr>
-nnoremap <leader>es :vsplit ~/.slate<cr>
 
-" Source the vimrc file after saving it
+" Source the vimrc file after saving it {{{
 if has("autocmd")
   autocmd! bufwritepost .vimrc source $MYVIMRC
-endif
+endif " }}}
 
 " }}}
 " Searching and movement -------------------------------------------------- {{{
@@ -1039,12 +1013,84 @@ augroup END
 
 " }}}
 " Plugin settings --------------------------------------------------------- {{{
-" Powerline {{{
+"   Powerline {{{
 
 let g:Powerline_symbols = 'fancy'
 let g:Powerline_cache_enabled = 1
 let g:Powerline_colorscheme = 'badwolf'
 
+"   }}}
+
 " }}}
+" Mini-plugins ------------------------------------------------------------ {{{
+"   Block Colors {{{
+
+let g:blockcolor_state = 0
+function! BlockColor() " {{{
+    if g:blockcolor_state
+        let g:blockcolor_state = 0
+        call matchdelete(77881)
+        call matchdelete(77882)
+        call matchdelete(77883)
+        call matchdelete(77884)
+        call matchdelete(77885)
+        call matchdelete(77886)
+    else
+        let g:blockcolor_state = 1
+        call matchadd("BlockColor1", '^ \{4}.*', 1, 77881)
+        call matchadd("BlockColor2", '^ \{8}.*', 2, 77882)
+        call matchadd("BlockColor3", '^ \{12}.*', 3, 77883)
+        call matchadd("BlockColor4", '^ \{16}.*', 4, 77884)
+        call matchadd("BlockColor5", '^ \{20}.*', 5, 77885)
+        call matchadd("BlockColor6", '^ \{24}.*', 6, 77886)
+    endif
+endfunction " }}}
+" Default highlights {{{
+hi def BlockColor1 guibg=#222222 ctermbg=234
+hi def BlockColor2 guibg=#2a2a2a ctermbg=235
+hi def BlockColor3 guibg=#353535 ctermbg=236
+hi def BlockColor4 guibg=#3d3d3d ctermbg=237
+hi def BlockColor5 guibg=#444444 ctermbg=238
+hi def BlockColor6 guibg=#4a4a4a ctermbg=239
+" }}}
+nnoremap <leader>B :call BlockColor()<cr>
+
+"   }}}
+"   Pulse Line {{{
+
+function! s:Pulse() " {{{
+    let current_window = winnr()
+    windo set nocursorline
+    execute current_window . 'wincmd w'
+    setlocal cursorline
+
+    redir => old_hi
+        silent execute 'hi CursorLine'
+    redir END
+    let old_hi = split(old_hi, '\n')[0]
+    let old_hi = substitute(old_hi, 'xxx', '', '')
+
+    let steps = 9
+    let width = 1
+    let start = width
+    let end = steps * width
+    let color = 233
+
+    for i in range(start, end, width)
+        execute "hi CursorLine ctermbg=" . (color + i)
+        redraw
+        sleep 6m
+    endfor
+    for i in range(end, start, -1 * width)
+        execute "hi CursorLine ctermbg=" . (color + i)
+        redraw
+        sleep 6m
+    endfor
+
+    execute 'hi ' . old_hi
+endfunction " }}}
+command! -nargs=0 Pulse call s:Pulse()
+
+"   }}}
 
 " }}}
